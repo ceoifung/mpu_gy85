@@ -1,0 +1,4 @@
+<launch>
+    <include file="$(find mpu_gy85)/launch/imu.launch"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mpu_gy85)/rviz_config/imu.rviz" />
+</launch>
