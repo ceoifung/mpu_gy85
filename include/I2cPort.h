@@ -22,7 +22,7 @@ namespace ceoifung {
 
         I2cPort(uint8_t bus_address);
 
-        I2cPort(uint8_t device_address, uint8_t bus_address);
+        I2cPort(uint8_t bus_address, uint8_t device_address);
 
         ~I2cPort();
 

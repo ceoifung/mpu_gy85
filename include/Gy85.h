@@ -7,8 +7,8 @@
 class Gy85
 {
 private:
-    ceoifung::I2cPort adxlBus;
-    ceoifung::I2cPort itgBus;
+    ceoifung::I2cPort *adxlBus;
+    ceoifung::I2cPort *itgBus;
     // 加速度计的i2c从机地址
     uint8_t ACCEL_ADDR = 0x53; // i2c设备地址
     // 电源管理

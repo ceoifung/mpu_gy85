@@ -1,12 +1,14 @@
 
 #include "I2cPort.h"
 
-namespace ceoifung {
+namespace ceoifung
+{
 
     /**
      * @funtion I2cPort()
      */
-    I2cPort::I2cPort() {
+    I2cPort::I2cPort()
+    {
         this->connection_open = false;
     }
 
@@ -14,32 +16,37 @@ namespace ceoifung {
      * @funtion I2cPort(uint8_t bus_addr)
      * @param bus_addr I2C Bus address.
      */
-    I2cPort::I2cPort(uint8_t bus_address) {
+    I2cPort::I2cPort(uint8_t bus_address)
+    {
         this->connection_open = false;
         this->bus_address = bus_address;
-        this->path = (char *) calloc(PATH_SIZE, sizeof(char));
+        this->path = (char *)calloc(PATH_SIZE, sizeof(char));
         sprintf(path, "/dev/i2c-%d", this->bus_address);
     }
 
     /**
      * @funtion I2cPort(uint8_t dev_addr, uint8_t bus_addr)
-     * @param dev_addr Device Address
      * @param bus_addr I2C Bus address.
+     * @param dev_addr Device Address
      */
-    I2cPort::I2cPort(uint8_t device_address, uint8_t bus_address) {
+    I2cPort::I2cPort(uint8_t bus_address, uint8_t device_address)
+    {
         this->connection_open = false;
         this->bus_address = bus_address;
-        this->path = (char *) calloc(PATH_SIZE, sizeof(char));
+        this->path = (char *)calloc(PATH_SIZE, sizeof(char));
         this->device_address = device_address;
         sprintf(path, "/dev/i2c-%d", this->bus_address);
+        // printf("path=%s\n", path);
     }
 
     /** Default Destructor
      * @funtion ~I2cPort()
      *
      */
-    I2cPort::~I2cPort() {
+    I2cPort::~I2cPort()
+    {
         free(path);
+        printf("析构函数");
         this->closeConnection();
     }
 
@@ -47,10 +54,12 @@ namespace ceoifung {
      * @funtion setBusAddress(uint8_t bus_addr)
      * @param bus_addr I2C Bus address.
      */
-    void I2cPort::setBusAddress(uint8_t bus_address) {
+    void I2cPort::setBusAddress(uint8_t bus_address)
+    {
+        // if (this->path != NULL)
         free(path);
         this->bus_address = bus_address;
-        this->path = (char *) calloc(PATH_SIZE, sizeof(char));
+        this->path = (char *)calloc(PATH_SIZE, sizeof(char));
         sprintf(path, "/dev/i2c-%d", this->bus_address);
     }
 
@@ -58,7 +67,8 @@ namespace ceoifung {
      * @funtion getBusAddress()
      * @return bus_addr I2C Bus address.
      */
-    uint8_t I2cPort::getBusAddress() const {
+    uint8_t I2cPort::getBusAddress() const
+    {
         return this->bus_address;
     }
 
@@ -66,7 +76,8 @@ namespace ceoifung {
      * @funtion setDevAddr(uint8_t dev_addr)
      * @param dev_addr Device Address
      */
-    void I2cPort::setDeviceAddress(uint8_t device_address) {
+    void I2cPort::setDeviceAddress(uint8_t device_address)
+    {
         this->device_address = device_address;
     }
 
@@ -74,7 +85,8 @@ namespace ceoifung {
      * @funtion getDevAddr()
      * @return dev_addr Device Address
      */
-    uint8_t I2cPort::getDeviceAddress() const {
+    uint8_t I2cPort::getDeviceAddress() const
+    {
         return this->device_address;
     }
 
@@ -82,22 +94,26 @@ namespace ceoifung {
      * @function openConnection()
      * @return file type of int
      */
-    int I2cPort::openConnection() {
+    int I2cPort::openConnection()
+    {
         int file;
-
-        if ((file = open(path, O_RDWR)) < 0) {
+        // printf("path=%s\n", path);
+        if ((file = open(path, O_RDWR)) < 0)
+        {
             printf("%s do not open. Address %d.\n", path, device_address);
             // exit(1);
             return -1;
         }
 
-        if (ioctl(file, I2C_SLAVE, device_address) < 0) {
+        if (ioctl(file, I2C_SLAVE, device_address) < 0)
+        {
             printf("Can not join I2C Bus. Address %d.\n", device_address);
             // exit(1);
             return -1;
         }
 
-        if (file < 0) {
+        if (file < 0)
+        {
             this->connection_open = false;
             printf("Connection was not established.\n");
             // exit(1);
@@ -110,7 +126,8 @@ namespace ceoifung {
         return 0;
     }
 
-    void I2cPort::closeConnection() {
+    void I2cPort::closeConnection()
+    {
         this->connection_open = false;
         close(this->file_descriptor);
         // std::cout << "Already close " << path << ", Sensor address: " << device_address << std::endl;
@@ -124,13 +141,19 @@ namespace ceoifung {
      * @param bitNum Bit Number for writing.
      * @return void.
      */
-    void I2cPort::writeBit(uint8_t DATA_REGADD, uint8_t data, uint8_t bitNum) {
+    void I2cPort::writeBit(uint8_t DATA_REGADD, uint8_t data, uint8_t bitNum)
+    {
         int8_t temp = readByte(DATA_REGADD);
-        if (data == 0) {
+        if (data == 0)
+        {
             temp = temp & ~(1 << bitNum);
-        } else if (data == 1) {
+        }
+        else if (data == 1)
+        {
             temp = temp | (1 << bitNum);
-        } else {
+        }
+        else
+        {
             printf("Value must be 0 or 1! --> Address %d.\n", device_address);
         }
 
@@ -146,12 +169,14 @@ namespace ceoifung {
      * @return void.
      */
     void I2cPort::writeMoreBits(uint8_t DATA_REGADD, uint8_t data, uint8_t length,
-                                uint8_t startBit) {
+                                uint8_t startBit)
+    {
         int8_t temp = readByte(DATA_REGADD);
         uint8_t bits = 1;
         uint8_t i = 0;
 
-        while (i < length - 1) {
+        while (i < length - 1)
+        {
             bits = (bits << 1);
             ++bits;
             ++i;
@@ -171,14 +196,16 @@ namespace ceoifung {
      * @param data Writing data.
      * @return void.
      */
-    void I2cPort::writeByte(uint8_t DATA_REGADD, uint8_t data) {
+    void I2cPort::writeByte(uint8_t DATA_REGADD, uint8_t data)
+    {
 
         uint8_t buffer[2];
 
         buffer[0] = DATA_REGADD;
         buffer[1] = data;
 
-        if (write(this->file_descriptor, buffer, 2) != 2) {
+        if (write(this->file_descriptor, buffer, 2) != 2)
+        {
             printf("Can not write data. Address %d.\n", device_address);
         }
         // printf("write data %d to address %d.\n", data, device_address);
@@ -193,16 +220,19 @@ namespace ceoifung {
      * @return void.
      */
     void I2cPort::writeByteBuffer(uint8_t DATA_REGADD, uint8_t *data,
-                                  uint8_t length) {
+                                  uint8_t length)
+    {
 
         uint8_t buffer[1];
         buffer[0] = DATA_REGADD;
 
-        if (write(this->file_descriptor, buffer, 1) != 1) {
+        if (write(this->file_descriptor, buffer, 1) != 1)
+        {
             printf("Can not write data. Address %d.\n", device_address);
         }
 
-        if (write(this->file_descriptor, data, length) != length) {
+        if (write(this->file_descriptor, data, length) != length)
+        {
             printf("Can not write data. Address %d.\n", device_address);
         }
     }
@@ -213,12 +243,14 @@ namespace ceoifung {
      * @param data Writing data.
      * @return void.
      */
-    void I2cPort::writeByteArduino(int8_t data) {
+    void I2cPort::writeByteArduino(int8_t data)
+    {
 
         int8_t buffer[1];
         buffer[0] = data;
 
-        if (write(this->file_descriptor, buffer, 1) != 1) {
+        if (write(this->file_descriptor, buffer, 1) != 1)
+        {
             printf("Can not write data. Address %d.\n", device_address);
         }
     }
@@ -230,9 +262,11 @@ namespace ceoifung {
      * @param length Array length.
      * @return void.
      */
-    void I2cPort::writeByteBufferArduino(uint8_t *data, uint8_t length) {
+    void I2cPort::writeByteBufferArduino(uint8_t *data, uint8_t length)
+    {
 
-        if (write(this->file_descriptor, data, length) != length) {
+        if (write(this->file_descriptor, data, length) != length)
+        {
             printf("Can not write data. Address %d.\n", device_address);
         }
     }
@@ -245,9 +279,10 @@ namespace ceoifung {
      * @return uint8_t bit value.
      */
 
-    uint8_t I2cPort::readBit(uint8_t DATA_REGADD, uint8_t bitNum) {
+    uint8_t I2cPort::readBit(uint8_t DATA_REGADD, uint8_t bitNum)
+    {
         int8_t temp = readByte(DATA_REGADD);
-        return (uint8_t) ((temp >> bitNum) % 2);
+        return (uint8_t)((temp >> bitNum) % 2);
     }
 
     /**
@@ -259,9 +294,10 @@ namespace ceoifung {
      * @return uint8_t bit value.
      */
     uint8_t I2cPort::readMoreBits(uint8_t DATA_REGADD, uint8_t length,
-                                  uint8_t startBit) {
+                                  uint8_t startBit)
+    {
         int8_t temp = readByte(DATA_REGADD);
-        return (uint8_t) ((temp >> startBit) % (uint8_t) pow(2, length));
+        return (uint8_t)((temp >> startBit) % (uint8_t)pow(2, length));
     }
 
     /**
@@ -270,18 +306,21 @@ namespace ceoifung {
      * @param DATA_REGADD Data Register Address.
      * @return uint8_t bit value.
      */
-    uint8_t I2cPort::readByte(uint8_t DATA_REGADD) {
+    uint8_t I2cPort::readByte(uint8_t DATA_REGADD)
+    {
 
         uint8_t buffer[1];
         buffer[0] = DATA_REGADD;
 
-        if (write(this->file_descriptor, buffer, 1) != 1) {
+        if (write(this->file_descriptor, buffer, 1) != 1)
+        {
             printf("Can not write data. Address %d.\n", device_address);
         }
 
         uint8_t value[1];
 
-        if (read(this->file_descriptor, value, 1) != 1) {
+        if (read(this->file_descriptor, value, 1) != 1)
+        {
             printf("Can not read data. Address %d.\n", device_address);
         }
 
@@ -297,17 +336,20 @@ namespace ceoifung {
      * @return void.
      */
     int I2cPort::readByteBuffer(uint8_t DATA_REGADD, uint8_t *data,
-                                 uint8_t length) {
+                                uint8_t length)
+    {
 
         uint8_t buffer[1];
         buffer[0] = DATA_REGADD;
 
-        if (write(this->file_descriptor, buffer, 1) != 1) {
+        if (write(this->file_descriptor, buffer, 1) != 1)
+        {
             printf("Can not write data. Address %d.\n", device_address);
             return -1;
         }
 
-        if (read(this->file_descriptor, data, length) != length) {
+        if (read(this->file_descriptor, data, length) != length)
+        {
             printf("Can not read data. Address %d.\n", device_address);
             return -1;
         }
@@ -321,9 +363,11 @@ namespace ceoifung {
      * @param length Array length.
      * @return void.
      */
-    void I2cPort::readByteBufferArduino(uint8_t *data, uint8_t length) {
+    void I2cPort::readByteBufferArduino(uint8_t *data, uint8_t length)
+    {
 
-        if (read(this->file_descriptor, data, length) != length) {
+        if (read(this->file_descriptor, data, length) != length)
+        {
             printf("Can not read data. Address %d.\n", device_address);
         }
     }
@@ -335,13 +379,14 @@ namespace ceoifung {
      * @param LSB 16-bit values Less Significant Byte Address..
      * @return void.
      */
-    int16_t I2cPort::readWord(uint8_t MSB, uint8_t LSB) {
+    int16_t I2cPort::readWord(uint8_t MSB, uint8_t LSB)
+    {
 
         uint8_t msb = readByte(MSB);
 
         uint8_t lsb = readByte(LSB);
 
-        return ((int16_t) msb << 8) + lsb;
+        return ((int16_t)msb << 8) + lsb;
     }
 
 } // namespace ceoifung_i2cport
