@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 {
       ros::init(argc, argv, "IMU_pub");
       ros::NodeHandle n;
-      ros::Publisher pub_imu = n.advertise<sensor_msgs::Imu>("imu/data_raw", 2);
+      ros::Publisher pub_imu = n.advertise<sensor_msgs::Imu>("imu/raw", 2);
       int bus = -1;
       ros::param::get("~bus", bus);
       if (bus == -1)
