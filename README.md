@@ -26,7 +26,7 @@ Run a node:
 
 Review the published data with:
 
-    rostopic echo /imu/raw
+    rostopic echo /imu/data_raw
 
 
 Test App
